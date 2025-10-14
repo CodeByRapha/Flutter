@@ -129,7 +129,7 @@ class SobrePage extends StatelessWidget {
             ),
             const SizedBox(height: 30),
 
-            // ======== Cards das Skills =========
+            // ======== Cards das ferramentas =========
             const Text(
               'Minhas Habilidades',
               style: TextStyle(
