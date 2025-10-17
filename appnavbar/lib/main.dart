@@ -1,3 +1,6 @@
+import 'package:appnavbar/home.dart';
+import 'package:appnavbar/tela2.dart';
+import 'package:appnavbar/tela3.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -42,9 +45,14 @@ class _NavBarState extends State<NavBar> {
     home: Scaffold(
       body: screens.elementAt(currentIndex), // O conteúdo será a tela que está o index atual
       bottomNavigationBar: BottomNavigationBar(items: <BottomNavigationBarItem> [
+        BottomNavigationBarItem(label: "Tela 1", icon: Icon(Icons.account_circle)),
+        BottomNavigationBarItem(label: "Tela 2", icon: Icon(Icons.account_circle)),
+        BottomNavigationBarItem(label: "Tela 3", icon: Icon(Icons.account_circle))
 
+      ],
+      currentIndex: currentIndex, // a posição desejada
+      onTap: changeIndex, //função que muda o index
 
-      ]
       
       )
       
