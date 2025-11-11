@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "998316320783",
+    "project_id": "appbanco-88cae",
+    "storage_bucket": "appbanco-88cae.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:998316320783:android:d18da0f31440c922fb5b7a",
+        "android_client_info": {
+          "package_name": "com.app.api"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3eXdFJhEpPeHfXnAEuPvCfL5PnLfyTQw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

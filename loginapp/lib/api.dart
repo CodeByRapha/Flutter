@@ -33,9 +33,12 @@ class _ApiPageState extends State<ApiPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return MaterialApp(
+      home: Scaffold(
+        body: value == null ? CircularProgressIndicator() : Text("$value"),
+      ),
+    );
   }
 }
