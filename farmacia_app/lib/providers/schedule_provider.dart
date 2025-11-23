@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
-
-class ScheduleEntry {
-  final String produtoId;
-  final DateTime hora;
-
-  ScheduleEntry({required this.produtoId, required this.hora});
-}
+import '../models/agendamento.dart';
 
 class ScheduleProvider extends ChangeNotifier {
-  final List<ScheduleEntry> entries = [];
+  final List<ScheduleEntry> _entries = [];
+
+  List<ScheduleEntry> get entries => List.unmodifiable(_entries);
 
   void addEntry(ScheduleEntry e) {
-    entries.add(e);
+    _entries.add(e);
     notifyListeners();
   }
 
   void removeEntry(ScheduleEntry e) {
-    entries.remove(e);
+    _entries.remove(e);
     notifyListeners();
   }
 }

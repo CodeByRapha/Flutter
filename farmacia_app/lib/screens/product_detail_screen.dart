@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
+
 import '../models/produto.dart';
 import '../providers/cart_provider.dart';
+import '../providers/products_provider.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Produto produto;
@@ -14,56 +16,109 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   String? receitaPath;
-  bool loading = false;
 
-  Future<void> pickReceita() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null && result.files.isNotEmpty) {
-      setState(() {
-        receitaPath = result.files.first.path;
-      });
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final img = await picker.pickImage(source: ImageSource.gallery);
+
+    if (img != null) {
+      setState(() => receitaPath = img.path);
+
+      // Atualiza provider
+      Provider.of<ProductsProvider>(context, listen: false)
+          .updatePrescription(widget.produto.id, img.path);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Receita carregada com sucesso!")),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final p = widget.produto;
-    final cart = Provider.of<CartProvider>(context, listen: false);
+    final cart = Provider.of<CartProvider>(context);
+
     return Scaffold(
-      appBar: AppBar(title: Text(p.nome)),
+      appBar: AppBar(title: Text(widget.produto.nome)),
       body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Center(child: Image.network(p.imagem, width: 150, height: 150, errorBuilder: (_, __, ___) => const Icon(Icons.medication, size: 96))),
-          const SizedBox(height: 12),
-          Text(p.nome, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Text(p.descricao),
-          const SizedBox(height: 8),
-          Text('R\$ ${p.preco.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 16),
-          if (p.receitaObrigatoria)
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Receita obrigatória', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              ElevatedButton.icon(onPressed: pickReceita, icon: const Icon(Icons.upload), label: const Text('Anexar receita (imagem)')),
-              if (receitaPath != null) Padding(padding: const EdgeInsets.only(top:8.0), child: Text('Arquivo: ${receitaPath!.split('/').last}'))
-            ]),
-          const Spacer(),
-          ElevatedButton(
-            onPressed: loading ? null : () {
-              if (p.receitaObrigatoria && receitaPath == null) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Você precisa anexar a receita para esse medicamento')));
-                return;
-              }
-              cart.addProduct(p, receitaPath: receitaPath);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adicionado ao carrinho')));
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-            child: const Text('Adicionar ao carrinho'),
-          )
-        ]),
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.medication, size: 90, color: Colors.teal),
+            const SizedBox(height: 12),
+
+            Text(
+              widget.produto.nome,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              "Preço: R\$ ${widget.produto.preco.toStringAsFixed(2)}",
+              style: const TextStyle(fontSize: 18),
+            ),
+
+            const SizedBox(height: 12),
+
+            if (widget.produto.receitaObrigatoria)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Requer receita médica",
+                    style: TextStyle(color: Colors.red, fontSize: 16),
+                  ),
+                  const SizedBox(height: 10),
+
+                  ElevatedButton.icon(
+                    onPressed: _pickImage,
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(receitaPath == null
+                        ? "Enviar Receita"
+                        : "Receita Enviada ✔"),
+                  ),
+
+                  const SizedBox(height: 8),
+                ],
+              ),
+
+            // empurra o botão para o fim
+            const Spacer(),
+
+            // BOTÃO CENTRALIZADO
+            Center(
+              child: SizedBox(
+                width: 280,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (widget.produto.receitaObrigatoria &&
+                        (receitaPath == null &&
+                         widget.produto.receitaImagem == null)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              "Envie a receita para adicionar este item."),
+                        ),
+                      );
+                      return;
+                    }
+
+                    cart.addProduct(widget.produto);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Adicionado ao carrinho")),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                  ),
+                  child: const Text("Adicionar ao carrinho"),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

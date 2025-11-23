@@ -11,11 +11,6 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeProduct(String id) {
-    _items.remove(id);
-    notifyListeners();
-  }
-
   void decreaseQuantity(String id) {
     if (!_items.containsKey(id)) return;
     if (_items[id] == 1) {
@@ -23,6 +18,16 @@ class CartProvider extends ChangeNotifier {
     } else {
       _items[id] = _items[id]! - 1;
     }
+    notifyListeners();
+  }
+
+  void removeProduct(String id) {
+    _items.remove(id);
+    notifyListeners();
+  }
+
+  void clearCart() {
+    _items.clear();
     notifyListeners();
   }
 }
