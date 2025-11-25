@@ -22,7 +22,6 @@ class AuthProvider extends ChangeNotifier {
   }
 
   bool login(String nome, String senha) {
-
     // ---------- VERIFICA ADMIN PRIMEIRO ----------
     if (nome == adminUser && senha == adminPass) {
       _logado = Usuario(nome: adminUser, senha: adminPass);

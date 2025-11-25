@@ -7,12 +7,12 @@ import '../widgets/product_card.dart';
 import '../providers/auth_provider.dart';
 import '../providers/products_provider.dart';
 import '../providers/cart_provider.dart';
-import 'product_detail_screen.dart';
 
 import 'products_screen.dart';
 import 'schedule_screen.dart';
 import 'admin_screen.dart';
 import 'cart_screen.dart';
+import 'product_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,7 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // garante carregamento no Web também
     Future.microtask(() {
       final p = Provider.of<ProductsProvider>(context, listen: false);
       if (p.items.isEmpty) p.loadSampleProducts();
@@ -40,18 +39,26 @@ class _HomeScreenState extends State<HomeScreen> {
     final products = Provider.of<ProductsProvider>(context).items;
     final cart = Provider.of<CartProvider>(context);
 
+    // divide pages: cada página mostra 10 itens (5x2)
+    final perPage = 10;
+    final pageCount = (products.length / perPage).ceil();
+    final pages = List.generate(pageCount, (pageIndex) {
+      final start = pageIndex * perPage;
+      final end = (start + perPage).clamp(0, products.length);
+      final slice = products.sublist(start, end);
+      return slice;
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("FarmaTech"),
         actions: [
           PopupMenuButton(
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'logout', child: Text('Sair')),
-            ],
-            onSelected: (value) {
-              if (value == 'logout') Provider.of<AuthProvider>(context, listen: false).logout();
+            itemBuilder: (_) => const [PopupMenuItem(value: 'logout', child: Text('Sair'))],
+            onSelected: (v) {
+              if (v == 'logout') Provider.of<AuthProvider>(context, listen: false).logout();
             },
-          ),
+          )
         ],
       ),
       body: ListView(
@@ -62,8 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
               gradient: LinearGradient(colors: [Color(0xFF0B8E7C), Color(0xFF18C1A3)]),
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text("Olá, ${auth.usuario?.nome ?? 'Cliente'}",
-                  style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+              Text("Olá, ${auth.usuario?.nome ?? 'Cliente'}", style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               const Text("Sua farmácia digital — agende, compre e envie receitas.", style: TextStyle(color: Colors.white70)),
             ]),
@@ -75,24 +81,58 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 20),
           const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("Recomendados", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
           const SizedBox(height: 10),
+
+          // CARROSSEL MANUAL: PageView onde cada página tem grid 5x2
           SizedBox(
-            height: 220,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: products.length,
-              itemBuilder: (_, i) {
-                final p = products[i];
-                return ProductCard(
-                  produto: p,
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(produto: p))),
-                  onAdd: () {
-                    Provider.of<CartProvider>(context, listen: false).addProduct(p);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adicionado ao carrinho')));
-                  },
+            height: MediaQuery.of(context).size.width * 1.0,
+            child: PageView.builder(
+              itemCount: pages.length,
+              controller: PageController(viewportFraction: 1.0),
+              itemBuilder: (_, pageIndex) {
+                final slice = pages[pageIndex];
+                // grid 5 colunas x 2 linhas (se tiver menos, mostra o que tem)
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child:  GridView.count(
+                    crossAxisCount: 5,
+                    childAspectRatio: 0.68,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 8,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: List.generate(10, (idx) {
+                      if (idx >= slice.length) return const SizedBox.shrink();
+                      final p = slice[idx];
+                      return ProductCard(
+                        produto: p,
+                        onAdd: () {
+                          Provider.of<CartProvider>(context, listen: false).addProduct(p);
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adicionado ao carrinho')));
+                        },
+                        onSendRecipe: () {
+                          if (!p.receitaObrigatoria) {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Este produto não requer receita.')));
+                            return;
+                          }
+                          // abre diálogo simples instruindo a enviar receita via carrinho
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text('Receita Obrigatória'),
+                              content: const Text('Este medicamento requer receita. Você pode enviar a imagem da receita pela tela do carrinho para este item.'),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fechar')),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  ),
                 );
               },
             ),
           ),
+
           const SizedBox(height: 20),
         ],
       ),

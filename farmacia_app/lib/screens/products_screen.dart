@@ -31,10 +31,30 @@ class _ProductsScreenState extends State<ProductsScreen> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: ProductCard(
               produto: p,
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(produto: p))),
+              onTap: () {
+                // se quiser abrir detalhe, abriu (mantive detalhe como opção)
+                Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(produto: p)));
+              },
               onAdd: () {
-                cart.addProduct(p);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adicionado ao carrinho')));
+                if (p.receitaObrigatoria) {
+                  // permite adicionar, mas aviso que precisa de receita para finalizar
+                  cart.addProduct(p);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adicionado ao carrinho — receita necessária para finalizar.')));
+                } else {
+                  cart.addProduct(p);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adicionado ao carrinho')));
+                }
+              },
+              onSendRecipe: () {
+                // instrução simples: enviar via carrinho
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text('Receita'),
+                    content: const Text('Para enviar a receita, abra o carrinho e use "Enviar receita" no item.'),
+                    actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Ok'))],
+                  ),
+                );
               },
             ),
           );

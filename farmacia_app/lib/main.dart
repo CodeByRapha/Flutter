@@ -15,7 +15,6 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(
-          // importante usar closure para garantir que o loadSampleProducts rode no Web
           create: (_) {
             final p = ProductsProvider();
             p.loadSampleProducts();

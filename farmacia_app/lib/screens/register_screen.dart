@@ -32,18 +32,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 18),
             if (error != null) Text(error!, style: const TextStyle(color: Colors.red)),
             ElevatedButton(
-              onPressed: loading ? null : () async {
-                setState(() { loading = true; error = null; });
-                final ok = await auth.register(nomeController.text.trim(), senhaController.text);
-                setState(() => loading = false);
-                if (ok) {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-                } else {
-                  setState(() => error = "Usuário já existe.");
-                }
-              },
+              onPressed: loading
+                  ? null
+                  : () async {
+                      setState(() {
+                        loading = true;
+                        error = null;
+                      });
+                      final ok = await auth.register(nomeController.text.trim(), senhaController.text);
+                      setState(() => loading = false);
+                      if (ok) {
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+                      } else {
+                        setState(() => error = "Usuário já existe.");
+                      }
+                    },
               style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              child: loading ? const CircularProgressIndicator() : const Text("Registrar"),
+              child: loading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator()) : const Text("Registrar"),
             ),
           ],
         ),

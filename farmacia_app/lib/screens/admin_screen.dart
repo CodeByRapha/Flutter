@@ -20,7 +20,6 @@ class _AdminScreenState extends State<AdminScreen> {
     final isAdmin = auth.usuario?.nome == 'admin';
 
     if (!isAdmin) {
-      // redireciona para home após mostrar mensagem
       Future.microtask(() {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Somente admin pode acessar.')));
         Navigator.pushReplacementNamed(context, '/home');
