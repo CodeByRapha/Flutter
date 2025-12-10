@@ -7,8 +7,17 @@ import 'providers/products_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/schedule_provider.dart';
 
-void main() {
+// IMPORTS DO FIREBASE (adicionados)
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicialização do Firebase (adicionada)
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(
     MultiProvider(

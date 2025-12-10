@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "768137611902",
+    "project_id": "farmacia-app-123",
+    "storage_bucket": "farmacia-app-123.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:768137611902:android:ef956c8f68c6ac51e3e62f",
+        "android_client_info": {
+          "package_name": "com.example.farmacia_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_IV92GUFk8bFJ_DWrFMwfIwSVmSkkvtA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
